@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayuda - Simulador de Trading de Proyectos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .header h1 {
+            color: #1e3c72;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section h3 {
+            color: #764ba2;
+            font-size: 1.3em;
+            margin: 20px 0 10px 0;
+        }
+
+        .section p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .stages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stage-card {
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stage-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stage-ideation {
+            background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%);
+            color: white;
+        }
+
+        .stage-planning {
+            background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+            color: white;
+        }
+
+        .stage-design {
+            background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+            color: white;
+        }
+
+        .stage-development {
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            color: white;
+        }
+
+        .stage-testing {
+            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+            color: white;
+        }
+
+        .stage-card h4 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .stage-card p {
+            font-size: 0.95em;
+            margin-bottom: 8px;
+            text-align: left;
+        }
+
+        .rules-list {
+            background: #f8fafc;
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .rules-list ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .rules-list li {
+            padding: 12px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .rules-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+            font-size: 1.3em;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 5px solid #f59e0b;
+            margin: 20px 0;
+        }
+
+        .highlight-box h4 {
+            color: #92400e;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .highlight-box p {
+            color: #78350f;
+            margin-bottom: 0;
+        }
+
+        .btn-back {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            margin-top: 30px;
+        }
+
+        .btn-back:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .events-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .event-type {
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .event-positive {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border: 2px solid #10b981;
+        }
+
+        .event-negative {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border: 2px solid #ef4444;
+        }
+
+        .event-neutral {
+            background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+            border: 2px solid #6b7280;
+        }
+
+        .event-type h5 {
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .formula {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .section h2 {
+                font-size: 1.4em;
+            }
+
+            .stages-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .events-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Simulador de Trading de Proyectos Software</h1>
+            <p>Guía completa del juego</p>
+        </div>
+
+        <!-- OBJETIVO -->
+        <div class="section">
+            <h2>🎯 Objetivo del Juego</h2>
+            <p>
+                Eres parte de un equipo que invierte en el "valor" de un proyecto de software a lo largo de su ciclo de vida. 
+                El objetivo es <strong>maximizar tu ganancia</strong> comprando cuando el proyecto tiene buen valor y vendiendo 
+                cuando alcanza precios altos, considerando los eventos que afectan el desarrollo y las decisiones de otros equipos.
+            </p>
+            <div class="highlight-box">
+                <h4>💰 ¿Cómo ganar?</h4>
+                <p>
+                    El equipo ganador es aquel que termine con el <strong>mayor valor total</strong> al final del proyecto 
+                    (Iteración 35). El valor total se calcula como: <strong>Balance + (Posición × Precio Final)</strong>
+                </p>
+            </div>
+        </div>
+
+        <!-- ETAPAS DEL PROYECTO -->
+        <div class="section">
+            <h2>🚀 Etapas del Proyecto (35 Iteraciones)</h2>
+            <p>El proyecto se divide en 5 etapas, cada una con características únicas:</p>
+            
+            <div class="stages-grid">
+                <div class="stage-card stage-ideation">
+                    <h4>💡 Ideación</h4>
+                    <p><strong>Iteraciones:</strong> 1-5</p>
+                    <p><strong>Precio inicial:</strong> 20 → 75 pts</p>
+                    <p><strong>Eventos:</strong> Solo positivos</p>
+                    <p><strong>Trading:</strong> ❌ NO permitido</p>
+                    <p style="margin-top: 10px;"><em>Fase de validación de la idea. Solo observa cómo crece el proyecto.</em></p>
+                </div>
+
+                <div class="stage-card stage-planning">
+                    <h4>📋 Planificación</h4>
+                    <p><strong>Iteraciones:</strong> 6-12</p>
+                    <p><strong>Eventos:</strong> Mixtos (33% cada tipo)</p>
+                    <p><strong>Trading:</strong> ✅ Permitido</p>
+                    <p style="margin-top: 10px;"><em>Definición de requisitos y backlog. Comienza el trading.</em></p>
+                </div>
+
+                <div class="stage-card stage-design">
+                    <h4>🎨 Diseño</h4>
+                    <p><strong>Iteraciones:</strong> 13-19</p>
+                    <p><strong>Eventos:</strong> Mixtos (33% cada tipo)</p>
+                    <p><strong>Trading:</strong> ✅ Permitido</p>
+                    <p style="margin-top: 10px;"><em>Diseño de arquitectura y mockups. Volatilidad media.</em></p>
+                </div>
+
+                <div class="stage-card stage-development">
+                    <h4>💻 Desarrollo</h4>
+                    <p><strong>Iteraciones:</strong> 20-27</p>
+                    <p><strong>Eventos:</strong> Mixtos (33% cada tipo)</p>
+                    <p><strong>Trading:</strong> ✅ Permitido</p>
+                    <p style="margin-top: 10px;"><em>Codificación principal. Alta actividad y oportunidades.</em></p>
+                </div>
+
+                <div class="stage-card stage-testing">
+                    <h4>🧪 Pruebas</h4>
+                    <p><strong>Iteraciones:</strong> 28-35</p>
+                    <p><strong>Eventos:</strong> Mixtos (33% cada tipo)</p>
+                    <p><strong>Trading:</strong> ✅ Permitido</p>
+                    <p style="margin-top: 10px;"><em>Testing e implementación final. Última oportunidad de ganar.</em></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- MECÁNICAS DEL JUEGO -->
+        <div class="section">
+            <h2>⚙️ Mecánicas del Juego</h2>
+            
+            <h3>📈 Sistema de Precios</h3>
+            <p>El precio del proyecto se modifica por dos factores:</p>
+            <div class="rules-list">
+                <ul>
+                    <li><strong>Eventos Aleatorios:</strong> Cada iteración tiene un evento que afecta la siguiente
+                        <ul style="margin-top: 10px; margin-left: 30px;">
+                            <li>Positivos: +8 a +12 puntos</li>
+                            <li>Negativos: -8 a -12 puntos</li>
+                            <li>Neutrales: 0 puntos (sin impacto)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Impacto del Mercado:</strong> Si los 3 equipos compran o venden simultáneamente
+                        <ul style="margin-top: 10px; margin-left: 30px;">
+                            <li>3 equipos comprando: +30% al precio</li>
+                            <li>3 equipos comprando + >50 pts: +50% al precio</li>
+                            <li>3 equipos vendiendo: -30% al precio</li>
+                            <li>3 equipos vendiendo + >50 pts: -50% al precio</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="formula">
+                Precio Final = (Precio Base + Evento) × Impacto Mercado<br>
+                Ejemplo: (100 pts + 10 pts evento) × 1.30 mercado = 143 pts
+            </div>
+
+            <h3>💼 Trading</h3>
+            <div class="rules-list">
+                <ul>
+                    <li><strong>Balance Inicial:</strong> Cada equipo comienza con 100 puntos</li>
+                    <li><strong>Spread:</strong> 2% de diferencia entre precio de compra y venta
+                        <ul style="margin-top: 10px; margin-left: 30px;">
+                            <li>Precio de Compra (ASK) = Precio + 1%</li>
+                            <li>Precio de Venta (BID) = Precio - 1%</li>
+                        </ul>
+                    </li>
+                    <li><strong>Compra:</strong> Invierte puntos para obtener unidades del proyecto</li>
+                    <li><strong>Venta:</strong> Convierte tus unidades de vuelta a puntos</li>
+                    <li><strong>Posición Abierta:</strong> Puedes tener múltiples compras pendientes de venta</li>
+                </ul>
+            </div>
+
+            <h3>⏱️ Tiempo y Turnos</h3>
+            <div class="rules-list">
+                <ul>
+                    <li>Cada iteración dura <strong>60 segundos</strong></li>
+                    <li>Durante este tiempo, puedes comprar, vender o mantener posición</li>
+                    <li>El botón "Siguiente" avanza a la próxima iteración manualmente</li>
+                    <li>Los eventos se muestran en la iteración actual pero afectan la siguiente</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- TIPOS DE EVENTOS -->
+        <div class="section">
+            <h2>🎲 Tipos de Eventos</h2>
+            <div class="events-info">
+                <div class="event-type event-positive">
+                    <h5>✅ Positivos</h5>
+                    <p>Aumentan el valor</p>
+                    <p><strong>+8 a +12 pts</strong></p>
+                </div>
+                <div class="event-type event-negative">
+                    <h5>❌ Negativos</h5>
+                    <p>Disminuyen el valor</p>
+                    <p><strong>-8 a -12 pts</strong></p>
+                </div>
+                <div class="event-type event-neutral">
+                    <h5>➖ Neutrales</h5>
+                    <p>Sin impacto directo</p>
+                    <p><strong>0 pts</strong></p>
+                </div>
+            </div>
+            <p style="margin-top: 15px;">
+                Los eventos están basados en roles de Scrum: <strong>Product Owner, Scrum Master, Team Members, 
+                Stakeholders y Sponsors</strong>. Cada evento tiene una descripción humorística de situaciones 
+                reales en proyectos de software.
+            </p>
+        </div>
+
+        <!-- REGLAS DEL JUEGO -->
+        <div class="section">
+            <h2>📋 Reglas Importantes</h2>
+            <div class="rules-list">
+                <ul>
+                    <li>NO puedes invertir durante la Etapa de Ideación (iteraciones 1-5)</li>
+                    <li>Solo puedes comprar si tienes suficiente balance</li>
+                    <li>Puedes vender tus posiciones en cualquier momento después de comprar</li>
+                    <li>El precio mostrado incluye el spread del 2%</li>
+                    <li>Los eventos afectan la SIGUIENTE iteración, no la actual</li>
+                    <li>El impacto del mercado solo ocurre si LOS 3 EQUIPOS operan en la misma dirección</li>
+                    <li>Al finalizar (iteración 35), se muestra un podio con los resultados</li>
+                    <li>El botón Reset limpia todo y recarga la página con valores iniciales</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ESTRATEGIAS -->
+        <div class="section">
+            <h2>🧠 Estrategias Sugeridas</h2>
+            <div class="rules-list">
+                <ul>
+                    <li><strong>Análisis de Eventos:</strong> Lee el evento actual para anticipar el movimiento de precio</li>
+                    <li><strong>Timing:</strong> Compra cuando el evento es positivo y el precio está bajo</li>
+                    <li><strong>Coordinación:</strong> Observa las acciones de otros equipos para aprovechar el impacto del mercado</li>
+                    <li><strong>Diversificación:</strong> No inviertas todo tu balance de una vez</li>
+                    <li><strong>Stop Loss:</strong> Considera vender si el precio cae significativamente</li>
+                    <li><strong>Hold Strategy:</strong> A veces, mantener la posición es mejor que vender precipitadamente</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- INTERFAZ -->
+        <div class="section">
+            <h2>🖥️ Interfaz del Juego</h2>
+            <h3>Panel de Equipos (Izquierda)</h3>
+            <div class="rules-list">
+                <ul>
+                    <li><strong>Balance:</strong> Puntos disponibles para invertir</li>
+                    <li><strong>Posición:</strong> Unidades del proyecto que posees</li>
+                    <li><strong>Trades:</strong> Número de operaciones realizadas</li>
+                    <li><strong>Botones:</strong> Comprar, Vender, Ver Historial</li>
+                </ul>
+            </div>
+
+            <h3>Gráfico de Trading (Centro)</h3>
+            <div class="rules-list">
+                <ul>
+                    <li>Muestra el progreso del precio en formato de velas</li>
+                    <li>Verde: Precio subió | Rojo: Precio bajó</li>
+                    <li>Información de OHLC (Apertura, Alto, Bajo, Cierre)</li>
+                    <li>Precios de Compra (ASK) y Venta (BID)</li>
+                </ul>
+            </div>
+
+            <h3>Información de Etapa y Eventos (Derecha)</h3>
+            <div class="rules-list">
+                <ul>
+                    <li>Etapa actual del proyecto con color identificador</li>
+                    <li>Evento activo que afectará la siguiente iteración</li>
+                    <li>Tipo de evento (positivo/negativo/neutral) con código de color</li>
+                    <li>Descripción humorística del evento</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- CONSEJOS FINALES -->
+        <div class="section">
+            <h2>💡 Consejos Finales</h2>
+            <div class="highlight-box">
+                <h4>🏆 Para Ganar:</h4>
+                <p>
+                    No se trata solo de comprar barato y vender caro. La clave está en anticipar eventos, 
+                    observar patrones, coordinar (o descoordinar) con otros equipos, y gestionar tu riesgo. 
+                    ¡A veces la mejor jugada es NO hacer nada!
+                </p>
+            </div>
+            <div class="highlight-box" style="margin-top: 20px;">
+                <h4>🎮 Recuerda:</h4>
+                <p>
+                    Este es un simulador educativo sobre gestión de proyectos de software usando mecánicas de trading. 
+                    Los eventos están basados en situaciones reales de proyectos ágiles con Scrum. ¡Diviértete y aprende!
+                </p>
+            </div>
+        </div>
+
+        <div class="center">
+            <a href="javascript:window.close()" class="btn-back">🔙 Volver al Juego</a>
+        </div>
+
+        <!-- Footer -->
+        <footer style="margin-top: 50px; padding-top: 20px; border-top: 2px solid #e5e7eb; text-align: center; color: #666;">
+            <p style="margin-bottom: 5px;">© 2025 Eder Zuñiga Muñoz</p>
+            <p style="font-size: 0.9em;">Apoyado en GitHub Copilot</p>
+        </footer>
+    </div>
+</body>
+</html>
