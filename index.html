@@ -438,6 +438,48 @@
             gap: 20px;
         }
 
+        /* Temporizador */
+        .timer-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .timer-label {
+            font-size: 0.75em;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .timer-display {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: white;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .timer-display.warning {
+            color: #fbbf24;
+            animation: pulse 1s infinite;
+        }
+
+        .timer-display.danger {
+            color: #ef4444;
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
         .iteration-info {
             text-align: right;
         }
@@ -497,6 +539,42 @@
             background: #f8f9fa;
             border-radius: 10px;
             gap: 10px;
+        }
+
+        /* Contenedor para ambas secciones de precios */
+        .prices-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .price-section {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .price-section-title {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 8px;
+        }
+
+        .price-info-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .price-info-row.single {
+            grid-template-columns: 1fr;
         }
 
         .price-item {
@@ -667,12 +745,21 @@
                 width: 100%;
             }
 
+            .timer-container {
+                width: 100%;
+            }
+
             .iteration-info {
                 text-align: center;
             }
 
             .btn-next {
                 width: 100%;
+            }
+
+            /* Apilar secciones de precios verticalmente en móvil */
+            .prices-wrapper {
+                grid-template-columns: 1fr;
             }
 
             .price-info {
@@ -765,6 +852,10 @@
                 <p class="header-subtitle">Análisis de velas japonesas en tiempo real</p>
             </div>
             <div class="header-right">
+                <div class="timer-container">
+                    <div class="timer-label">⏱️ Tiempo</div>
+                    <div class="timer-display" id="timer-display">30</div>
+                </div>
                 <div class="iteration-info">
                     <div class="iteration-label">Iteración</div>
                     <div class="iteration-number"><span id="current-iteration">0</span> / <span id="total-iterations">0</span></div>
@@ -777,30 +868,44 @@
             <div id="loading" class="loading">Cargando datos...</div>
             
             <div id="chart-content" style="display: none;">
-                <div class="price-info">
-                    <div class="price-item">
-                        <div class="price-label">Apertura</div>
-                        <div class="price-value open" id="price-open">0 ptos</div>
+                <!-- Contenedor de las dos secciones -->
+                <div class="prices-wrapper">
+                    <!-- Sección OHLC -->
+                    <div class="price-section">
+                        <div class="price-section-title">📊 Datos de la Vela</div>
+                        <div class="price-info-row">
+                            <div class="price-item">
+                                <div class="price-label">Apertura</div>
+                                <div class="price-value open" id="price-open">0 ptos</div>
+                            </div>
+                            <div class="price-item">
+                                <div class="price-label">Máximo</div>
+                                <div class="price-value high" id="price-high">0 ptos</div>
+                            </div>
+                            <div class="price-item">
+                                <div class="price-label">Mínimo</div>
+                                <div class="price-value low" id="price-low">0 ptos</div>
+                            </div>
+                            <div class="price-item">
+                                <div class="price-label">Cierre</div>
+                                <div class="price-value close" id="price-close">0 ptos</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="price-item">
-                        <div class="price-label">Máximo</div>
-                        <div class="price-value high" id="price-high">0 ptos</div>
-                    </div>
-                    <div class="price-item">
-                        <div class="price-label">Mínimo</div>
-                        <div class="price-value low" id="price-low">0 ptos</div>
-                    </div>
-                    <div class="price-item">
-                        <div class="price-label">Cierre</div>
-                        <div class="price-value close" id="price-close">0 ptos</div>
-                    </div>
-                    <div class="price-item">
-                        <div class="price-label">🟢 Compra</div>
-                        <div class="price-value buy" id="price-buy">0 ptos</div>
-                    </div>
-                    <div class="price-item">
-                        <div class="price-label">🔴 Venta</div>
-                        <div class="price-value sell" id="price-sell">0 ptos</div>
+
+                    <!-- Sección Compra/Venta -->
+                    <div class="price-section">
+                        <div class="price-section-title">💱 Precios de Operación</div>
+                        <div class="price-info-row">
+                            <div class="price-item">
+                                <div class="price-label">🟢 Compra (ASK)</div>
+                                <div class="price-value buy" id="price-buy">0 ptos</div>
+                            </div>
+                            <div class="price-item">
+                                <div class="price-label">🔴 Venta (BID)</div>
+                                <div class="price-value sell" id="price-sell">0 ptos</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -857,6 +962,11 @@
         let displayedCandles = [];
         const INITIAL_CANDLES = 10; // Mostrar las primeras 10 velas al inicio
 
+        // Temporizador
+        let timerInterval = null;
+        let timeRemaining = 30;
+        const TIMER_DURATION = 30; // 30 segundos
+
         // Sistema de equipos
         const teams = {
             a: { name: 'Equipo A', balance: 100, position: 0, trades: [], pendingSell: [] },
@@ -885,8 +995,8 @@
         // Actualizar displays de equipos
         function updateTeamsDisplay() {
             ['a', 'b', 'c'].forEach(team => {
-                document.getElementById(`balance-${team}`).textContent = teams[team].balance.toFixed(0) + ' ptos';
-                document.getElementById(`position-${team}`).textContent = teams[team].position.toFixed(0) + ' ptos';
+                document.getElementById(`balance-${team}`).textContent = teams[team].balance.toFixed(2) + ' ptos';
+                document.getElementById(`position-${team}`).textContent = teams[team].position.toFixed(2) + ' ptos';
                 document.getElementById(`trades-${team}`).textContent = teams[team].trades.length;
             });
         }
@@ -902,6 +1012,44 @@
             updateTeamsDisplay();
             saveTeamsData();
             showStatusMessage('Equipos reseteados correctamente', 'success');
+        }
+
+        // Funciones del temporizador
+        function startTimer() {
+            stopTimer(); // Detener cualquier temporizador anterior
+            timeRemaining = TIMER_DURATION;
+            updateTimerDisplay();
+            
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+                
+                if (timeRemaining <= 0) {
+                    stopTimer();
+                    // Opcional: avanzar automáticamente a la siguiente iteración
+                    // nextIteration();
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function updateTimerDisplay() {
+            const display = document.getElementById('timer-display');
+            display.textContent = timeRemaining;
+            
+            // Cambiar color según el tiempo restante
+            display.classList.remove('warning', 'danger');
+            if (timeRemaining <= 5) {
+                display.classList.add('danger');
+            } else if (timeRemaining <= 10) {
+                display.classList.add('warning');
+            }
         }
 
         // Realizar compra para un equipo (llamado desde el botón Comprar)
@@ -932,7 +1080,7 @@
             team.pendingSell.push({
                 id: tradeId,
                 iteration: currentIndex,
-                buyPrice: spread.buy,
+                buyPrice: spread.buy, // Este es el precio que se muestra
                 units: amount / spread.buy,
                 invested: amount,
                 sold: false
@@ -985,7 +1133,7 @@
             team.position -= pendingTrade.units;
             pendingTrade.sold = true;
             pendingTrade.sellIteration = currentIndex;
-            pendingTrade.sellPrice = spread.sell;
+            pendingTrade.sellPrice = spread.sell; // Este es el precio que se muestra
             pendingTrade.profit = profit;
             
             // Registrar la venta en el historial
@@ -1008,7 +1156,7 @@
             showHistory(teamId);
             
             const profitText = profit >= 0 ? `+${profit.toFixed(2)}` : profit.toFixed(2);
-            showStatusMessage(`${team.name} vendió por ${sellAmount.toFixed(0)} ptos (${profitText} ptos)`, profit >= 0 ? 'success' : 'error');
+            showStatusMessage(`${team.name} vendió por ${sellAmount.toFixed(2)} ptos (${profitText} ptos)`, profit >= 0 ? 'success' : 'error');
         }
 
         // Vender todas las posiciones abiertas
@@ -1050,7 +1198,7 @@
 
         // Formatear precio
         function formatPrice(price) {
-            return price.toFixed(0) + ' ptos';
+            return price.toFixed(2) + ' ptos';
         }
 
         // Calcular spread
@@ -1127,7 +1275,7 @@
             // Actualizar título y resumen
             const teamNames = { a: '🔴 Equipo A', b: '🔵 Equipo B', c: '🟢 Equipo C' };
             document.getElementById('history-team-name').textContent = `${teamNames[teamId]} - Historial de Operaciones`;
-            document.getElementById('history-balance').textContent = team.balance.toFixed(0) + ' ptos';
+            document.getElementById('history-balance').textContent = team.balance.toFixed(2) + ' ptos';
             document.getElementById('history-position').textContent = team.position.toFixed(2) + ' unidades';
             document.getElementById('history-total').textContent = team.trades.length;
             
@@ -1163,11 +1311,11 @@
                     
                     if (trade.sold) {
                         // Operación cerrada
-                        const profitDisplay = trade.profit >= 0 ? `+${trade.profit.toFixed(0)}` : trade.profit.toFixed(0);
+                        const profitDisplay = trade.profit >= 0 ? `+${trade.profit.toFixed(2)}` : trade.profit.toFixed(2);
                         const profitClass = trade.profit >= 0 ? 'trade-buy' : 'trade-sell';
                         statusText = `<span class="${profitClass}">Vendido<br>#${trade.sellIteration}</span>`;
                         actionButton = '<button class="btn-sell-trade" disabled>Vendido</button>';
-                        sellValueText = `${(trade.units * trade.sellPrice).toFixed(0)} ptos`;
+                        sellValueText = `${(trade.units * trade.sellPrice).toFixed(2)} ptos`;
                         profitText = `<span class="${profitClass}">${profitDisplay} ptos</span>`;
                     } else {
                         // Operación abierta - calcular valor actual
@@ -1175,9 +1323,9 @@
                             const currentSellValue = trade.units * currentSpread.sell;
                             const currentProfit = currentSellValue - trade.invested;
                             const profitClass = currentProfit >= 0 ? 'trade-buy' : 'trade-sell';
-                            const profitDisplay = currentProfit >= 0 ? `+${currentProfit.toFixed(0)}` : currentProfit.toFixed(0);
+                            const profitDisplay = currentProfit >= 0 ? `+${currentProfit.toFixed(2)}` : currentProfit.toFixed(2);
                             
-                            sellValueText = `<strong>${currentSellValue.toFixed(0)} ptos</strong>`;
+                            sellValueText = `<strong>${currentSellValue.toFixed(2)} ptos</strong>`;
                             profitText = `<strong><span class="${profitClass}">${profitDisplay} ptos</span></strong>`;
                         }
                         statusText = '<span class="trade-buy">Abierta</span>';
@@ -1188,7 +1336,7 @@
                         <tr class="${rowClass}">
                             <td><strong>#${trade.iteration}</strong></td>
                             <td>${trade.buyPrice.toFixed(2)} ptos</td>
-                            <td>${trade.invested.toFixed(0)} ptos</td>
+                            <td>${trade.invested.toFixed(2)} ptos</td>
                             <td>${trade.units.toFixed(2)}</td>
                             <td>${sellValueText}</td>
                             <td>${profitText}</td>
@@ -1213,9 +1361,9 @@
                         totalInvested += t.invested;
                     });
                     const totalProfit = totalValue - totalInvested;
-                    const profitDisplay = totalProfit >= 0 ? `+${totalProfit.toFixed(0)}` : totalProfit.toFixed(0);
+                    const profitDisplay = totalProfit >= 0 ? `+${totalProfit.toFixed(2)}` : totalProfit.toFixed(2);
                     
-                    tableHTML += `<button class="btn-sell-all" onclick="sellAllTrades('${teamId}')">💰 Vender Todo (${openTrades.length} posiciones) - ${totalValue.toFixed(0)} ptos (${profitDisplay})</button>`;
+                    tableHTML += `<button class="btn-sell-all" onclick="sellAllTrades('${teamId}')">💰 Vender Todo (${openTrades.length} posiciones) - ${totalValue.toFixed(2)} ptos (${profitDisplay})</button>`;
                 }
                 
                 container.innerHTML = tableHTML;
@@ -1438,6 +1586,7 @@
             if (currentIndex >= tradingData.candles.length) {
                 showStatusMessage('Has llegado al final de los datos', 'info');
                 document.getElementById('btn-next').disabled = true;
+                stopTimer();
                 
                 // Ofrecer exportar datos
                 setTimeout(() => {
@@ -1476,10 +1625,14 @@
             // Actualizar contador
             document.getElementById('current-iteration').textContent = currentIndex;
 
+            // Reiniciar temporizador
+            startTimer();
+
             // Deshabilitar botón si llegamos al final
             if (currentIndex >= tradingData.candles.length) {
                 document.getElementById('btn-next').disabled = true;
                 showStatusMessage('Has alcanzado la última vela', 'info');
+                stopTimer();
                 
                 // Ofrecer exportar datos
                 setTimeout(() => {
