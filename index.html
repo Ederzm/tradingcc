@@ -1,9 +1,1508 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <title>Hola Mundo</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Chart - Velas Japonesas</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.3.0/build/global/luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Panel de equipos */
+        .teams-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .teams-panel h2 {
+            color: #1e3c72;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.5em;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-reset {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-reset:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .btn-export {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-export:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        .teams-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .team-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px;
+            padding: 20px;
+            border: 3px solid #ddd;
+        }
+
+        .team-card.team-a {
+            border-color: #ef4444;
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        }
+
+        .team-card.team-b {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        }
+
+        .team-card.team-c {
+            border-color: #10b981;
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        }
+
+        .team-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(0,0,0,0.1);
+        }
+
+        .team-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #1e3c72;
+        }
+
+        .team-balance {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .team-card.team-a .team-balance { color: #dc2626; }
+        .team-card.team-b .team-balance { color: #2563eb; }
+        .team-card.team-c .team-balance { color: #059669; }
+
+        .team-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-buy {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 5px;
+        }
+
+        .btn-buy:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-buy:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .team-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .info-item {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .info-item strong {
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .btn-history {
+            width: 100%;
+            margin-top: 10px;
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-history:hover {
+            background: #4f46e5;
+            transform: translateY(-1px);
+        }
+
+        /* Modal de historial */
+        .history-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .history-modal.show {
+            display: flex;
+        }
+
+        .history-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #e5e7eb;
+        }
+
+        .history-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #1e3c72;
+        }
+
+        .btn-close-history {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-size: 0.9em;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-close-history:hover {
+            background: #dc2626;
+        }
+
+        .history-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f3f4f6;
+            border-radius: 10px;
+        }
+
+        .summary-item {
+            text-align: center;
+        }
+
+        .summary-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .summary-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #1e3c72;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .history-table th {
+            background: #1e3c72;
+            color: white;
+            padding: 12px 8px;
+            text-align: left;
+            font-size: 0.9em;
+        }
+
+        .history-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 0.85em;
+        }
+
+        .history-table tr:hover {
+            background: #f9fafb;
+        }
+
+        .trade-buy {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .trade-sell {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        .btn-sell-trade {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-sell-trade:hover {
+            background: #dc2626;
+        }
+
+        .btn-sell-trade:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .btn-sell-all {
+            background: #f59e0b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 0.95em;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .btn-sell-all:hover {
+            background: #d97706;
+        }
+
+        .btn-sell-all:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .trade-sold {
+            background: #fee2e2 !important;
+            opacity: 0.6;
+        }
+
+        .no-trades {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px 15px 0 0;
+            padding: 25px 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-left {
+            flex: 1;
+        }
+
+        .header-title {
+            font-size: 2em;
+            color: #1e3c72;
+            margin-bottom: 5px;
+        }
+
+        .header-subtitle {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .iteration-info {
+            text-align: right;
+        }
+
+        .iteration-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 3px;
+        }
+
+        .iteration-number {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #1e3c72;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-next:active {
+            transform: translateY(0);
+        }
+
+        .btn-next:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 0 0 15px 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        .price-info {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            gap: 10px;
+        }
+
+        .price-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .price-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .price-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .price-value.open { color: #6366f1; }
+        .price-value.high { color: #10b981; }
+        .price-value.low { color: #ef4444; }
+        .price-value.close { color: #f59e0b; }
+        .price-value.buy { color: #10b981; }
+        .price-value.sell { color: #ef4444; }
+
+        .chart-wrapper {
+            position: relative;
+            height: 500px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2em;
+            color: #666;
+        }
+
+        .status-message {
+            text-align: center;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .status-message.success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-message.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-message.info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        /* Modal / Ventana emergente */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            animation: slideIn 0.3s ease;
+            position: relative;
+        }
+
+        .modal-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 15px;
+        }
+
+        .modal-message {
+            font-size: 1.2em;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .modal-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 40px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .teams-container {
+                grid-template-columns: 1fr;
+            }
+
+            .teams-panel h2 {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .header-right {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .iteration-info {
+                text-align: center;
+            }
+
+            .btn-next {
+                width: 100%;
+            }
+
+            .price-info {
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+
+            .price-item {
+                flex: 1 1 30%;
+                min-width: 100px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h1>Hola mundo</h1>
+    <div class="container">
+        <!-- Panel de Equipos -->
+        <div class="teams-panel">
+            <h2>
+                💼 Panel de Trading - Equipos
+                <button class="btn-reset" onclick="resetTeamsData()" title="Reiniciar equipos">🔄 Reset</button>
+                <button class="btn-export" onclick="exportTeamsData()" title="Exportar datos">📥 Exportar</button>
+            </h2>
+            <div class="teams-container">
+                <!-- Equipo A -->
+                <div class="team-card team-a">
+                    <div class="team-header">
+                        <span class="team-name">🔴 Equipo A</span>
+                        <span class="team-balance" id="balance-a">100 ptos</span>
+                    </div>
+                    <div class="team-form">
+                        <div class="form-group">
+                            <label>Cantidad a Comprar (puntos)</label>
+                            <input type="number" id="amount-a" min="0" step="1" placeholder="0">
+                        </div>
+                        <button class="btn-buy" onclick="buyForTeam('a')">🛒 Comprar</button>
+                    </div>
+                    <div class="team-info">
+                        <div class="info-item">Posición: <strong id="position-a">0 ptos</strong></div>
+                        <div class="info-item">Operaciones: <strong id="trades-a">0</strong></div>
+                    </div>
+                    <button class="btn-history" onclick="showHistory('a')">📋 Ver Historial</button>
+                </div>
+
+                <!-- Equipo B -->
+                <div class="team-card team-b">
+                    <div class="team-header">
+                        <span class="team-name">🔵 Equipo B</span>
+                        <span class="team-balance" id="balance-b">100 ptos</span>
+                    </div>
+                    <div class="team-form">
+                        <div class="form-group">
+                            <label>Cantidad a Comprar (puntos)</label>
+                            <input type="number" id="amount-b" min="0" step="1" placeholder="0">
+                        </div>
+                        <button class="btn-buy" onclick="buyForTeam('b')">🛒 Comprar</button>
+                    </div>
+                    <div class="team-info">
+                        <div class="info-item">Posición: <strong id="position-b">0 ptos</strong></div>
+                        <div class="info-item">Operaciones: <strong id="trades-b">0</strong></div>
+                    </div>
+                    <button class="btn-history" onclick="showHistory('b')">📋 Ver Historial</button>
+                </div>
+
+                <!-- Equipo C -->
+                <div class="team-card team-c">
+                    <div class="team-header">
+                        <span class="team-name">🟢 Equipo C</span>
+                        <span class="team-balance" id="balance-c">100 ptos</span>
+                    </div>
+                    <div class="team-form">
+                        <div class="form-group">
+                            <label>Cantidad a Comprar (puntos)</label>
+                            <input type="number" id="amount-c" min="0" step="1" placeholder="0">
+                        </div>
+                        <button class="btn-buy" onclick="buyForTeam('c')">🛒 Comprar</button>
+                    </div>
+                    <div class="team-info">
+                        <div class="info-item">Posición: <strong id="position-c">0 ptos</strong></div>
+                        <div class="info-item">Operaciones: <strong id="trades-c">0</strong></div>
+                    </div>
+                    <button class="btn-history" onclick="showHistory('c')">📋 Ver Historial</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="header">
+            <div class="header-left">
+                <h1 class="header-title">📈 Trading Chart</h1>
+                <p class="header-subtitle">Análisis de velas japonesas en tiempo real</p>
+            </div>
+            <div class="header-right">
+                <div class="iteration-info">
+                    <div class="iteration-label">Iteración</div>
+                    <div class="iteration-number"><span id="current-iteration">0</span> / <span id="total-iterations">0</span></div>
+                </div>
+                <button id="btn-next" class="btn-next">Siguiente ▶</button>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div id="loading" class="loading">Cargando datos...</div>
+            
+            <div id="chart-content" style="display: none;">
+                <div class="price-info">
+                    <div class="price-item">
+                        <div class="price-label">Apertura</div>
+                        <div class="price-value open" id="price-open">0 ptos</div>
+                    </div>
+                    <div class="price-item">
+                        <div class="price-label">Máximo</div>
+                        <div class="price-value high" id="price-high">0 ptos</div>
+                    </div>
+                    <div class="price-item">
+                        <div class="price-label">Mínimo</div>
+                        <div class="price-value low" id="price-low">0 ptos</div>
+                    </div>
+                    <div class="price-item">
+                        <div class="price-label">Cierre</div>
+                        <div class="price-value close" id="price-close">0 ptos</div>
+                    </div>
+                    <div class="price-item">
+                        <div class="price-label">🟢 Compra</div>
+                        <div class="price-value buy" id="price-buy">0 ptos</div>
+                    </div>
+                    <div class="price-item">
+                        <div class="price-label">🔴 Venta</div>
+                        <div class="price-value sell" id="price-sell">0 ptos</div>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="chart"></canvas>
+                </div>
+
+                <div id="status-message" class="status-message" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal / Ventana emergente -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-icon" id="modal-icon">💡</div>
+            <h2 class="modal-title" id="modal-title">Iteración 5</h2>
+            <p class="modal-message" id="modal-message">Mensaje del sistema</p>
+            <button class="modal-button" onclick="closeModal()">Continuar</button>
+        </div>
+    </div>
+
+    <!-- Modal de Historial -->
+    <div id="history-modal" class="history-modal">
+        <div class="history-content">
+            <div class="history-header">
+                <h2 class="history-title" id="history-team-name">Historial de Operaciones</h2>
+                <button class="btn-close-history" onclick="closeHistory()">✕ Cerrar</button>
+            </div>
+            
+            <div class="history-summary">
+                <div class="summary-item">
+                    <div class="summary-label">Balance Actual</div>
+                    <div class="summary-value" id="history-balance">0 ptos</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Posición</div>
+                    <div class="summary-value" id="history-position">0 ptos</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Total Operaciones</div>
+                    <div class="summary-value" id="history-total">0</div>
+                </div>
+            </div>
+
+            <div id="history-trades-container"></div>
+        </div>
+    </div>
+
+    <script>
+        let tradingData = null;
+        let chart = null;
+        let currentIndex = 0;
+        let displayedCandles = [];
+        const INITIAL_CANDLES = 10; // Mostrar las primeras 10 velas al inicio
+
+        // Sistema de equipos
+        const teams = {
+            a: { name: 'Equipo A', balance: 100, position: 0, trades: [], pendingSell: [] },
+            b: { name: 'Equipo B', balance: 100, position: 0, trades: [], pendingSell: [] },
+            c: { name: 'Equipo C', balance: 100, position: 0, trades: [], pendingSell: [] }
+        };
+
+        // Guardar datos en localStorage
+        function saveTeamsData() {
+            localStorage.setItem('tradingTeams', JSON.stringify(teams));
+            console.log('Datos guardados:', teams);
+        }
+
+        // Cargar datos desde localStorage
+        function loadTeamsData() {
+            const saved = localStorage.getItem('tradingTeams');
+            if (saved) {
+                const data = JSON.parse(saved);
+                teams.a = data.a;
+                teams.b = data.b;
+                teams.c = data.c;
+                updateTeamsDisplay();
+            }
+        }
+
+        // Actualizar displays de equipos
+        function updateTeamsDisplay() {
+            ['a', 'b', 'c'].forEach(team => {
+                document.getElementById(`balance-${team}`).textContent = teams[team].balance.toFixed(0) + ' ptos';
+                document.getElementById(`position-${team}`).textContent = teams[team].position.toFixed(0) + ' ptos';
+                document.getElementById(`trades-${team}`).textContent = teams[team].trades.length;
+            });
+        }
+
+        // Resetear datos de equipos
+        function resetTeamsData() {
+            if (!confirm('¿Estás seguro de resetear todos los equipos? Se perderán todos los datos.')) {
+                return;
+            }
+            teams.a = { name: 'Equipo A', balance: 100, position: 0, trades: [], pendingSell: [] };
+            teams.b = { name: 'Equipo B', balance: 100, position: 0, trades: [], pendingSell: [] };
+            teams.c = { name: 'Equipo C', balance: 100, position: 0, trades: [], pendingSell: [] };
+            updateTeamsDisplay();
+            saveTeamsData();
+            showStatusMessage('Equipos reseteados correctamente', 'success');
+        }
+
+        // Realizar compra para un equipo (llamado desde el botón Comprar)
+        function buyForTeam(teamId) {
+            if (currentIndex === 0) {
+                alert('Debes avanzar al menos una iteración antes de comprar');
+                return;
+            }
+
+            const amount = parseFloat(document.getElementById(`amount-${teamId}`).value) || 0;
+            
+            if (amount <= 0) {
+                alert('Ingresa una cantidad válida');
+                return;
+            }
+
+            const team = teams[teamId];
+            const currentCandle = tradingData.candles[currentIndex - 1];
+            const spread = calculateSpread(currentCandle.close);
+            
+            if (amount > team.balance) {
+                alert(`${team.name}: Fondos insuficientes. Balance: ${team.balance.toFixed(0)} ptos`);
+                return;
+            }
+
+            // Registrar la compra pendiente de venta
+            const tradeId = Date.now() + Math.random();
+            team.pendingSell.push({
+                id: tradeId,
+                iteration: currentIndex,
+                buyPrice: spread.buy,
+                units: amount / spread.buy,
+                invested: amount,
+                sold: false
+            });
+
+            team.balance -= amount;
+            team.position += amount / spread.buy;
+            team.trades.push({
+                id: tradeId,
+                iteration: currentIndex,
+                action: 'buy',
+                amount: amount,
+                price: spread.buy,
+                units: amount / spread.buy,
+                balance: team.balance
+            });
+
+            // Limpiar formulario
+            document.getElementById(`amount-${teamId}`).value = '';
+            updateTeamsDisplay();
+            saveTeamsData();
+            
+            showStatusMessage(`${team.name} compró ${(amount / spread.buy).toFixed(2)} unidades por ${amount} ptos`, 'success');
+        }
+
+        // Vender una operación específica desde el historial
+        function sellTrade(teamId, tradeId) {
+            if (currentIndex === 0) {
+                alert('No puedes vender sin avanzar iteraciones');
+                return;
+            }
+
+            const team = teams[teamId];
+            const pendingTrade = team.pendingSell.find(t => t.id === tradeId);
+            
+            if (!pendingTrade || pendingTrade.sold) {
+                alert('Esta operación ya fue vendida');
+                return;
+            }
+
+            const currentCandle = tradingData.candles[currentIndex - 1];
+            const spread = calculateSpread(currentCandle.close);
+            
+            // Calcular ganancia/pérdida
+            const sellAmount = pendingTrade.units * spread.sell;
+            const profit = sellAmount - pendingTrade.invested;
+            
+            // Actualizar el equipo
+            team.balance += sellAmount;
+            team.position -= pendingTrade.units;
+            pendingTrade.sold = true;
+            pendingTrade.sellIteration = currentIndex;
+            pendingTrade.sellPrice = spread.sell;
+            pendingTrade.profit = profit;
+            
+            // Registrar la venta en el historial
+            team.trades.push({
+                id: Date.now() + Math.random(),
+                iteration: currentIndex,
+                action: 'sell',
+                amount: sellAmount,
+                price: spread.sell,
+                units: pendingTrade.units,
+                balance: team.balance,
+                profit: profit,
+                linkedBuyId: tradeId
+            });
+
+            updateTeamsDisplay();
+            saveTeamsData();
+            
+            // Recargar historial si está abierto
+            showHistory(teamId);
+            
+            const profitText = profit >= 0 ? `+${profit.toFixed(2)}` : profit.toFixed(2);
+            showStatusMessage(`${team.name} vendió por ${sellAmount.toFixed(0)} ptos (${profitText} ptos)`, profit >= 0 ? 'success' : 'error');
+        }
+
+        // Vender todas las posiciones abiertas
+        function sellAllTrades(teamId) {
+            const team = teams[teamId];
+            const openTrades = team.pendingSell.filter(t => !t.sold);
+            
+            if (openTrades.length === 0) {
+                alert('No hay posiciones abiertas para vender');
+                return;
+            }
+
+            if (!confirm(`¿Vender todas las ${openTrades.length} posiciones abiertas?`)) {
+                return;
+            }
+
+            openTrades.forEach(trade => {
+                sellTrade(teamId, trade.id);
+            });
+        }
+
+        // Procesar operación de equipo (ya no se usa, se mantiene por compatibilidad)
+        function processTeamTrade(teamId, currentPrice) {
+            // Esta función ya no hace nada, las compras se hacen con el botón
+            return { success: true, message: '' };
+        }
+
+        // Exportar datos a JSON
+        function exportTeamsData() {
+            const dataStr = JSON.stringify(teams, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'trading-teams-data.json';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Formatear precio
+        function formatPrice(price) {
+            return price.toFixed(0) + ' ptos';
+        }
+
+        // Calcular spread
+        function calculateSpread(price) {
+            const spread = (price * tradingData.spreadPercent) / 100;
+            return {
+                buy: price + (spread / 2),  // Precio de compra (ASK)
+                sell: price - (spread / 2)  // Precio de venta (BID)
+            };
+        }
+
+        // Actualizar información de precios
+        function updatePriceInfo(candle) {
+            document.getElementById('price-open').textContent = formatPrice(candle.open);
+            document.getElementById('price-high').textContent = formatPrice(candle.high);
+            document.getElementById('price-low').textContent = formatPrice(candle.low);
+            document.getElementById('price-close').textContent = formatPrice(candle.close);
+            
+            // Calcular y mostrar precios de compra/venta basados en el cierre
+            const spread = calculateSpread(candle.close);
+            document.getElementById('price-buy').textContent = formatPrice(spread.buy);
+            document.getElementById('price-sell').textContent = formatPrice(spread.sell);
+        }
+
+        // Mostrar mensaje de estado
+        function showStatusMessage(message, type = 'info') {
+            const statusElement = document.getElementById('status-message');
+            statusElement.textContent = message;
+            statusElement.className = `status-message ${type}`;
+            statusElement.style.display = 'block';
+
+            setTimeout(() => {
+                statusElement.style.display = 'none';
+            }, 3000);
+        }
+
+        // Mostrar modal
+        function showModal(iteration) {
+            const message = tradingData.messages[iteration.toString()];
+            if (!message) return;
+
+            const modal = document.getElementById('modal-overlay');
+            const modalIcon = document.getElementById('modal-icon');
+            const modalTitle = document.getElementById('modal-title');
+            const modalMessage = document.getElementById('modal-message');
+
+            // Extraer emoji del mensaje
+            const emojiMatch = message.match(/^([\u{1F300}-\u{1F9FF}])/u);
+            const emoji = emojiMatch ? emojiMatch[1] : '💡';
+            const textMessage = message.replace(/^[\u{1F300}-\u{1F9FF}]\s*/u, '');
+
+            modalIcon.textContent = emoji;
+            modalTitle.textContent = `Iteración ${iteration}`;
+            modalMessage.textContent = textMessage;
+
+            modal.classList.add('show');
+        }
+
+        // Cerrar modal
+        function closeModal() {
+            const modal = document.getElementById('modal-overlay');
+            modal.classList.remove('show');
+        }
+
+        // Mostrar historial de equipo
+        function showHistory(teamId) {
+            const team = teams[teamId];
+            const modal = document.getElementById('history-modal');
+            
+            // Obtener precio actual
+            const currentCandle = currentIndex > 0 ? tradingData.candles[currentIndex - 1] : null;
+            const currentSpread = currentCandle ? calculateSpread(currentCandle.close) : null;
+            
+            // Actualizar título y resumen
+            const teamNames = { a: '🔴 Equipo A', b: '🔵 Equipo B', c: '🟢 Equipo C' };
+            document.getElementById('history-team-name').textContent = `${teamNames[teamId]} - Historial de Operaciones`;
+            document.getElementById('history-balance').textContent = team.balance.toFixed(0) + ' ptos';
+            document.getElementById('history-position').textContent = team.position.toFixed(2) + ' unidades';
+            document.getElementById('history-total').textContent = team.trades.length;
+            
+            // Generar tabla de operaciones
+            const container = document.getElementById('history-trades-container');
+            
+            if (team.pendingSell.length === 0) {
+                container.innerHTML = '<div class="no-trades">No hay operaciones registradas</div>';
+            } else {
+                let tableHTML = `
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Iter.</th>
+                                <th>Precio Compra</th>
+                                <th>Invertido</th>
+                                <th>Unidades</th>
+                                <th>Valor Venta</th>
+                                <th>Ganancia</th>
+                                <th>Estado</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                team.pendingSell.forEach(trade => {
+                    const rowClass = trade.sold ? 'trade-sold' : '';
+                    let statusText = '';
+                    let actionButton = '';
+                    let sellValueText = '-';
+                    let profitText = '-';
+                    
+                    if (trade.sold) {
+                        // Operación cerrada
+                        const profitDisplay = trade.profit >= 0 ? `+${trade.profit.toFixed(0)}` : trade.profit.toFixed(0);
+                        const profitClass = trade.profit >= 0 ? 'trade-buy' : 'trade-sell';
+                        statusText = `<span class="${profitClass}">Vendido<br>#${trade.sellIteration}</span>`;
+                        actionButton = '<button class="btn-sell-trade" disabled>Vendido</button>';
+                        sellValueText = `${(trade.units * trade.sellPrice).toFixed(0)} ptos`;
+                        profitText = `<span class="${profitClass}">${profitDisplay} ptos</span>`;
+                    } else {
+                        // Operación abierta - calcular valor actual
+                        if (currentSpread) {
+                            const currentSellValue = trade.units * currentSpread.sell;
+                            const currentProfit = currentSellValue - trade.invested;
+                            const profitClass = currentProfit >= 0 ? 'trade-buy' : 'trade-sell';
+                            const profitDisplay = currentProfit >= 0 ? `+${currentProfit.toFixed(0)}` : currentProfit.toFixed(0);
+                            
+                            sellValueText = `<strong>${currentSellValue.toFixed(0)} ptos</strong>`;
+                            profitText = `<strong><span class="${profitClass}">${profitDisplay} ptos</span></strong>`;
+                        }
+                        statusText = '<span class="trade-buy">Abierta</span>';
+                        actionButton = `<button class="btn-sell-trade" onclick="sellTrade('${teamId}', ${trade.id})">🔴 Vender</button>`;
+                    }
+                    
+                    tableHTML += `
+                        <tr class="${rowClass}">
+                            <td><strong>#${trade.iteration}</strong></td>
+                            <td>${trade.buyPrice.toFixed(2)} ptos</td>
+                            <td>${trade.invested.toFixed(0)} ptos</td>
+                            <td>${trade.units.toFixed(2)}</td>
+                            <td>${sellValueText}</td>
+                            <td>${profitText}</td>
+                            <td>${statusText}</td>
+                            <td>${actionButton}</td>
+                        </tr>
+                    `;
+                });
+                
+                tableHTML += `
+                        </tbody>
+                    </table>
+                `;
+                
+                // Agregar botón "Vender Todo" con valor total
+                const openTrades = team.pendingSell.filter(t => !t.sold);
+                if (openTrades.length > 0 && currentSpread) {
+                    let totalValue = 0;
+                    let totalInvested = 0;
+                    openTrades.forEach(t => {
+                        totalValue += t.units * currentSpread.sell;
+                        totalInvested += t.invested;
+                    });
+                    const totalProfit = totalValue - totalInvested;
+                    const profitDisplay = totalProfit >= 0 ? `+${totalProfit.toFixed(0)}` : totalProfit.toFixed(0);
+                    
+                    tableHTML += `<button class="btn-sell-all" onclick="sellAllTrades('${teamId}')">💰 Vender Todo (${openTrades.length} posiciones) - ${totalValue.toFixed(0)} ptos (${profitDisplay})</button>`;
+                }
+                
+                container.innerHTML = tableHTML;
+            }
+            
+            modal.classList.add('show');
+        }
+
+        // Cerrar historial
+        function closeHistory() {
+            const modal = document.getElementById('history-modal');
+            modal.classList.remove('show');
+        }
+
+        // Inicializar gráfico
+        function initChart() {
+            const ctx = document.getElementById('chart').getContext('2d');
+            
+            chart = new Chart(ctx, {
+                type: 'candlestick',
+                data: {
+                    datasets: [{
+                        label: tradingData.instrument,
+                        data: displayedCandles
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const point = context.raw;
+                                    return [
+                                        `Apertura: ${formatPrice(point.o)}`,
+                                        `Máximo: ${formatPrice(point.h)}`,
+                                        `Mínimo: ${formatPrice(point.l)}`,
+                                        `Cierre: ${formatPrice(point.c)}`
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day',
+                                displayFormats: {
+                                    day: 'MMM dd'
+                                }
+                            },
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(0) + ' ptos';
+                                },
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Datos embebidos (alternativa a cargar JSON externo para evitar problemas CORS)
+        const DATA = {
+            "instrument": "Activo A",
+            "spreadPercent": 2, // Spread del 2%
+            "candles": [
+                // FASE 1: Primera cresta - Subida pronunciada (días 1-12)
+                { "timestamp": "2025-11-01", "open": 20, "high": 28, "low": 18, "close": 25 },
+                { "timestamp": "2025-11-02", "open": 25, "high": 35, "low": 23, "close": 32 },
+                { "timestamp": "2025-11-03", "open": 32, "high": 42, "low": 30, "close": 40 },
+                { "timestamp": "2025-11-04", "open": 40, "high": 52, "low": 38, "close": 50 },
+                { "timestamp": "2025-11-05", "open": 50, "high": 63, "low": 48, "close": 61 },
+                { "timestamp": "2025-11-06", "open": 61, "high": 72, "low": 59, "close": 70 },
+                { "timestamp": "2025-11-07", "open": 70, "high": 80, "low": 68, "close": 78 },
+                { "timestamp": "2025-11-08", "open": 78, "high": 88, "low": 76, "close": 85 },
+                { "timestamp": "2025-11-09", "open": 85, "high": 92, "low": 83, "close": 90 },
+                { "timestamp": "2025-11-10", "open": 90, "high": 95, "low": 88, "close": 92 },
+                { "timestamp": "2025-11-11", "open": 92, "high": 96, "low": 90, "close": 94 },
+                { "timestamp": "2025-11-12", "open": 94, "high": 98, "low": 92, "close": 95 },
+                
+                // FASE 2: Caída fuerte después de primera cresta (días 13-18)
+                { "timestamp": "2025-11-13", "open": 95, "high": 96, "low": 85, "close": 87 },
+                { "timestamp": "2025-11-14", "open": 87, "high": 89, "low": 75, "close": 78 },
+                { "timestamp": "2025-11-15", "open": 78, "high": 80, "low": 65, "close": 68 },
+                { "timestamp": "2025-11-16", "open": 68, "high": 70, "low": 55, "close": 58 },
+                { "timestamp": "2025-11-17", "open": 58, "high": 60, "low": 48, "close": 50 },
+                { "timestamp": "2025-11-18", "open": 50, "high": 52, "low": 42, "close": 45 },
+                
+                // FASE 3: Segunda cresta - Recuperación moderada (días 19-25)
+                { "timestamp": "2025-11-19", "open": 45, "high": 53, "low": 43, "close": 51 },
+                { "timestamp": "2025-11-20", "open": 51, "high": 60, "low": 49, "close": 58 },
+                { "timestamp": "2025-11-21", "open": 58, "high": 67, "low": 56, "close": 65 },
+                { "timestamp": "2025-11-22", "open": 65, "high": 73, "low": 63, "close": 71 },
+                { "timestamp": "2025-11-23", "open": 71, "high": 78, "low": 69, "close": 76 },
+                { "timestamp": "2025-11-24", "open": 76, "high": 82, "low": 74, "close": 80 },
+                { "timestamp": "2025-11-25", "open": 80, "high": 84, "low": 78, "close": 82 },
+                
+                // FASE 4: Caída moderada después de segunda cresta (días 26-31)
+                { "timestamp": "2025-11-26", "open": 82, "high": 83, "low": 73, "close": 75 },
+                { "timestamp": "2025-11-27", "open": 75, "high": 76, "low": 66, "close": 68 },
+                { "timestamp": "2025-11-28", "open": 68, "high": 70, "low": 58, "close": 60 },
+                { "timestamp": "2025-11-29", "open": 60, "high": 62, "low": 52, "close": 54 },
+                { "timestamp": "2025-11-30", "open": 54, "high": 56, "low": 48, "close": 50 },
+                { "timestamp": "2025-12-01", "open": 50, "high": 52, "low": 45, "close": 47 },
+                
+                // FASE 5: Tercera cresta - Subida corta (días 32-37)
+                { "timestamp": "2025-12-02", "open": 47, "high": 54, "low": 45, "close": 52 },
+                { "timestamp": "2025-12-03", "open": 52, "high": 60, "low": 50, "close": 58 },
+                { "timestamp": "2025-12-04", "open": 58, "high": 66, "low": 56, "close": 64 },
+                { "timestamp": "2025-12-05", "open": 64, "high": 71, "low": 62, "close": 69 },
+                { "timestamp": "2025-12-06", "open": 69, "high": 74, "low": 67, "close": 72 },
+                { "timestamp": "2025-12-07", "open": 72, "high": 76, "low": 70, "close": 74 },
+                
+                // FASE 6: Caída ligera (días 38-42)
+                { "timestamp": "2025-12-08", "open": 74, "high": 75, "low": 66, "close": 68 },
+                { "timestamp": "2025-12-09", "open": 68, "high": 70, "low": 60, "close": 62 },
+                { "timestamp": "2025-12-10", "open": 62, "high": 64, "low": 56, "close": 58 },
+                { "timestamp": "2025-12-11", "open": 58, "high": 60, "low": 53, "close": 55 },
+                { "timestamp": "2025-12-12", "open": 55, "high": 57, "low": 52, "close": 54 },
+                
+                // FASE 7: Cuarta cresta - Subida fuerte final (días 43-50)
+                { "timestamp": "2025-12-13", "open": 54, "high": 62, "low": 52, "close": 60 },
+                { "timestamp": "2025-12-14", "open": 60, "high": 70, "low": 58, "close": 68 },
+                { "timestamp": "2025-12-15", "open": 68, "high": 78, "low": 66, "close": 76 },
+                { "timestamp": "2025-12-16", "open": 76, "high": 85, "low": 74, "close": 83 },
+                { "timestamp": "2025-12-17", "open": 83, "high": 91, "low": 81, "close": 89 },
+                { "timestamp": "2025-12-18", "open": 89, "high": 96, "low": 87, "close": 94 },
+                { "timestamp": "2025-12-19", "open": 94, "high": 99, "low": 92, "close": 97 },
+                { "timestamp": "2025-12-20", "open": 97, "high": 100, "low": 95, "close": 98 }
+            ],
+            "messages": {
+                "5": "📈 ¡Excelente inicio! Primera tendencia alcista en desarrollo.",
+                "10": "🔥 ¡Primera cresta alcanzada! El precio llegó a su máximo nivel.",
+                "15": "📉 Corrección significativa. El mercado retrocede desde el máximo.",
+                "20": "⚠️ Segunda recuperación iniciada. El precio busca nuevos niveles.",
+                "25": "🎯 Segunda cresta formada. Patrón de volatilidad establecido.",
+                "30": "⚡ Nueva corrección. El mercado ajusta posiciones.",
+                "35": "💡 Tercera cresta en formación. Tendencia de corto plazo alcista.",
+                "40": "🔄 Fase de consolidación. El mercado evalúa la siguiente dirección.",
+                "45": "🚀 ¡Cuarta cresta iniciada! Fuerte impulso alcista detectado.",
+                "50": "🏆 ¡Máximo histórico alcanzado! Excelente desempeño del activo."
+            }
+        };
+
+        // Cargar datos
+        function loadData() {
+            try {
+                tradingData = DATA;
+                
+                // Inicializar con las primeras velas
+                const initialCount = Math.min(INITIAL_CANDLES, tradingData.candles.length);
+                for (let i = 0; i < initialCount; i++) {
+                    const candle = tradingData.candles[i];
+                    displayedCandles.push({
+                        x: new Date(candle.timestamp).getTime(),
+                        o: candle.open,
+                        h: candle.high,
+                        l: candle.low,
+                        c: candle.close
+                    });
+                }
+                
+                currentIndex = initialCount;
+                
+                // Actualizar UI
+                document.getElementById('current-iteration').textContent = currentIndex;
+                document.getElementById('total-iterations').textContent = tradingData.candles.length;
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('chart-content').style.display = 'block';
+                
+                // Inicializar gráfico
+                initChart();
+                
+                // Actualizar precios con la última vela mostrada
+                updatePriceInfo(tradingData.candles[currentIndex - 1]);
+                
+                // Habilitar botón
+                document.getElementById('btn-next').disabled = false;
+                
+                showStatusMessage(`Datos cargados correctamente. Mostrando ${initialCount} velas iniciales.`, 'success');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loading').textContent = 'Error al cargar los datos.';
+                showStatusMessage('Error al cargar los datos', 'error');
+            }
+        }
+
+        // Avanzar a la siguiente iteración
+        function nextIteration() {
+            if (currentIndex >= tradingData.candles.length) {
+                showStatusMessage('Has llegado al final de los datos', 'info');
+                document.getElementById('btn-next').disabled = true;
+                
+                // Ofrecer exportar datos
+                setTimeout(() => {
+                    if (confirm('¿Deseas exportar los datos de trading de los equipos?')) {
+                        exportTeamsData();
+                    }
+                }, 500);
+                return;
+            }
+
+            const candle = tradingData.candles[currentIndex];
+            
+            // Procesar operaciones de equipos antes de avanzar
+            ['a', 'b', 'c'].forEach(teamId => {
+                processTeamTrade(teamId, candle.close);
+            });
+            
+            // Agregar nueva vela
+            displayedCandles.push({
+                x: new Date(candle.timestamp).getTime(),
+                o: candle.open,
+                h: candle.high,
+                l: candle.low,
+                c: candle.close
+            });
+
+            currentIndex++;
+
+            // Actualizar gráfico
+            chart.data.datasets[0].data = [...displayedCandles];
+            chart.update('active');
+
+            // Actualizar precios
+            updatePriceInfo(candle);
+
+            // Actualizar contador
+            document.getElementById('current-iteration').textContent = currentIndex;
+
+            // Deshabilitar botón si llegamos al final
+            if (currentIndex >= tradingData.candles.length) {
+                document.getElementById('btn-next').disabled = true;
+                showStatusMessage('Has alcanzado la última vela', 'info');
+                
+                // Ofrecer exportar datos
+                setTimeout(() => {
+                    if (confirm('¿Deseas exportar los datos de trading de los equipos?')) {
+                        exportTeamsData();
+                    }
+                }, 1000);
+            } else {
+                showStatusMessage(`Vela ${currentIndex} agregada`, 'success');
+            }
+
+            // Mostrar modal cada 5 iteraciones
+            if (currentIndex % 5 === 0) {
+                showModal(currentIndex);
+            }
+        }
+
+        // Event listeners
+        document.getElementById('btn-next').addEventListener('click', nextIteration);
+
+        // Cargar datos al iniciar
+        loadTeamsData();
+        loadData();
+    </script>
 </body>
 </html>
