@@ -31,16 +31,16 @@
         .teams-panel {
             background: white;
             border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
         .teams-panel h2 {
             color: #1e3c72;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-align: center;
-            font-size: 1.5em;
+            font-size: 1.4em;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -100,14 +100,14 @@
 
         .teams-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
         }
 
         .team-card {
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             border-radius: 12px;
-            padding: 20px;
+            padding: 15px;
             border: 3px solid #ddd;
         }
 
@@ -130,19 +130,19 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
             border-bottom: 2px solid rgba(0,0,0,0.1);
         }
 
         .team-name {
-            font-size: 1.3em;
+            font-size: 1.2em;
             font-weight: bold;
             color: #1e3c72;
         }
 
         .team-balance {
-            font-size: 1.2em;
+            font-size: 1.1em;
             font-weight: bold;
         }
 
@@ -185,8 +185,8 @@
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
             border: none;
-            padding: 10px 20px;
-            font-size: 1em;
+            padding: 8px 16px;
+            font-size: 0.95em;
             font-weight: 600;
             border-radius: 8px;
             cursor: pointer;
@@ -216,18 +216,19 @@
         }
 
         .info-item {
-            font-size: 0.85em;
+            font-size: 0.8em;
             color: #666;
+            line-height: 1.4;
         }
 
         .info-item strong {
             color: #333;
-            font-size: 1.1em;
+            font-size: 1.05em;
         }
 
         .btn-history {
             width: 100%;
-            margin-top: 10px;
+            margin-top: 8px;
             background: #6366f1;
             color: white;
             border: none;
@@ -561,37 +562,37 @@
         /* Contenedor para ambas secciones de precios */
         .prices-wrapper {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 2fr 1fr;
             gap: 15px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .price-section {
-            padding: 20px;
+            padding: 12px 15px;
             background: #f8f9fa;
             border-radius: 10px;
         }
 
         .price-section-title {
-            font-size: 0.9em;
+            font-size: 0.85em;
             font-weight: bold;
             color: #666;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             text-transform: uppercase;
             letter-spacing: 1px;
             text-align: center;
             border-bottom: 2px solid #e5e7eb;
-            padding-bottom: 8px;
+            padding-bottom: 6px;
         }
 
         .price-info-row {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
         }
 
         .price-info-row.single {
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr 1fr;
         }
 
         .price-item {
@@ -600,15 +601,15 @@
         }
 
         .price-label {
-            font-size: 0.85em;
+            font-size: 0.75em;
             color: #666;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .price-value {
-            font-size: 1.5em;
+            font-size: 1.3em;
             font-weight: bold;
             color: #333;
         }
@@ -622,7 +623,7 @@
 
         .chart-wrapper {
             position: relative;
-            height: 500px;
+            height: 450px;
         }
 
         .loading {
@@ -1049,7 +1050,7 @@
                         <button class="btn-buy" onclick="buyForTeam('a')">🛒 Comprar</button>
                     </div>
                     <div class="team-info">
-                        <div class="info-item">Posición: <strong id="position-a">0 ptos</strong></div>
+                        <div class="info-item">Posición: <strong id="position-a">0 unidades</strong></div>
                         <div class="info-item">Operaciones: <strong id="trades-a">0</strong></div>
                     </div>
                     <button class="btn-history" onclick="showHistory('a')">📋 Ver Historial</button>
@@ -1069,7 +1070,7 @@
                         <button class="btn-buy" onclick="buyForTeam('b')">🛒 Comprar</button>
                     </div>
                     <div class="team-info">
-                        <div class="info-item">Posición: <strong id="position-b">0 ptos</strong></div>
+                        <div class="info-item">Posición: <strong id="position-b">0 unidades</strong></div>
                         <div class="info-item">Operaciones: <strong id="trades-b">0</strong></div>
                     </div>
                     <button class="btn-history" onclick="showHistory('b')">📋 Ver Historial</button>
@@ -1089,7 +1090,7 @@
                         <button class="btn-buy" onclick="buyForTeam('c')">🛒 Comprar</button>
                     </div>
                     <div class="team-info">
-                        <div class="info-item">Posición: <strong id="position-c">0 ptos</strong></div>
+                        <div class="info-item">Posición: <strong id="position-c">0 unidades</strong></div>
                         <div class="info-item">Operaciones: <strong id="trades-c">0</strong></div>
                     </div>
                     <button class="btn-history" onclick="showHistory('c')">📋 Ver Historial</button>
@@ -1164,7 +1165,7 @@
                     <!-- Sección Compra/Venta -->
                     <div class="price-section">
                         <div class="price-section-title">💱 Precios de Operación</div>
-                        <div class="price-info-row">
+                        <div class="price-info-row single">
                             <div class="price-item">
                                 <div class="price-label">🟢 Compra (ASK)</div>
                                 <div class="price-value buy" id="price-buy">0 ptos</div>
@@ -1211,7 +1212,7 @@
                 </div>
                 <div class="summary-item">
                     <div class="summary-label">Posición</div>
-                    <div class="summary-value" id="history-position">0 ptos</div>
+                    <div class="summary-value" id="history-position">0 unidades</div>
                 </div>
                 <div class="summary-item">
                     <div class="summary-label">Total Operaciones</div>
@@ -1303,7 +1304,7 @@
         function updateTeamsDisplay() {
             ['a', 'b', 'c'].forEach(team => {
                 document.getElementById(`balance-${team}`).textContent = teams[team].balance.toFixed(2) + ' ptos';
-                document.getElementById(`position-${team}`).textContent = teams[team].position.toFixed(2) + ' ptos';
+                document.getElementById(`position-${team}`).textContent = teams[team].position.toFixed(2) + ' unidades';
                 document.getElementById(`trades-${team}`).textContent = teams[team].trades.length;
             });
         }
@@ -1438,8 +1439,10 @@
             }
 
             const team = teams[teamId];
-            const currentCandle = tradingData.candles[currentIndex - 1];
-            const spread = calculateSpread(currentCandle.close);
+            // Usar el precio que se muestra en pantalla (con eventos aplicados)
+            const currentDisplayedCandle = displayedCandles[displayedCandles.length - 1];
+            const currentDisplayedClose = currentDisplayedCandle.c;
+            const spread = calculateSpread(currentDisplayedClose);
             
             if (amount > team.balance) {
                 alert(`${team.name}: Fondos insuficientes. Balance: ${team.balance.toFixed(0)} ptos`);
